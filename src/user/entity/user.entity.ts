@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class User {
@@ -17,9 +23,11 @@ export class User {
   @Column("text")
   image: string;
 
-  @Column("datetime")
+  @CreateDateColumn()
+  @Column("timestamp")
   createdAt: Date;
 
-  @Column("datetime")
+  @UpdateDateColumn()
+  @Column("timestamp")
   updatedAt: Date;
 }
