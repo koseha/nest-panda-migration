@@ -20,14 +20,12 @@ export class User {
   @Column("text")
   nickname: string;
 
-  @Column("text")
+  @Column("text", { nullable: true })
   image: string;
 
   @CreateDateColumn()
-  @Column("timestamp")
   createdAt: Date;
 
   @UpdateDateColumn()
-  @Column("timestamp")
   updatedAt: Date;
 }

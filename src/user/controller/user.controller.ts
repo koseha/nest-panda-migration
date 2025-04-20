@@ -1,18 +1,16 @@
 import { Controller, Get } from "@nestjs/common";
 import { UserService } from "../service/user.service";
-import { User } from "../entity/user.entity";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { UserResponseDto } from "../dto/user-response.dto";
 
-@Controller("user")
+@ApiTags("User")
+@Controller("users")
 export class UserController {
-  constructor(private readonly userSerivce: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get("/")
-  async first(): Promise<User[]> {
-    return this.userSerivce.findAll();
-  }
-
-  @Get("/text")
-  getText() {
-    return "text";
+  @ApiOperation({ summary: "유저 목록 조회" })
+  async first(): Promise<UserResponseDto[]> {
+    return this.userService.findAll();
   }
 }
