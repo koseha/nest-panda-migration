@@ -40,6 +40,7 @@ describe("PasswordService", () => {
   // 서비스가 정상적으로 생성되었는지를 확인하는 기본적인 생명 주기 테스트.
   it("should be defined", () => {
     expect(service).toBeDefined();
+    expect(configService).toBeDefined();
   });
 
   describe("hash", () => {
@@ -68,7 +69,7 @@ describe("PasswordService", () => {
     /**
      * salt rounds가 .env에 설정되어 있지 않은 경우, 기본값을 사용한다.
      * - 검증 포인트 (1): ConfigService.get()이 undefined 반환 >>> 기본값 사용 시나리오 재현
-     * - 검증 포인트 (2): 기본값 12가 적용되는지 >>> bcrypt.hash(password, 12)로 호출되는지 확인
+     * - 검증 포인트 (2): 기본값 10가 적용되는지 >>> bcrypt.hash(password, 10)로 호출되는지 확인
      */
     it("salt rounds가 .env에 설정되어 있지 않은 경우, 기본값을 사용한다.", async () => {
       // Arrange
@@ -79,7 +80,7 @@ describe("PasswordService", () => {
 
       // ConfigService의 get 메서드를 모킹하여 undefined 반환하도록 설정
       // 위에서는 10을 반환하도록 설정했지만,
-      // 지금은 undefined를 반환하게 해서, 내부에서 defaultValue(12)가 쓰이도록 유도함
+      // 지금은 undefined를 반환하게 해서, 내부에서 defaultValue(10)가 쓰이도록 유도함
       jest
         .spyOn(configService, "get")
         .mockImplementation((key, defaultValue) => {
@@ -87,7 +88,7 @@ describe("PasswordService", () => {
           return defaultValue;
         });
 
-      // 새로운 서비스 인스턴스 생성 (기본값 12를 사용)
+      // 새로운 서비스 인스턴스 생성 (기본값 10를 사용)
       // 바로 위에서 ConfigService를 조작했기 때문에
       // 이를 사용해서 새로 PasswordService를 생성해야 mock이 반영됨.
       const newModule: TestingModule = await Test.createTestingModule({
@@ -103,13 +104,13 @@ describe("PasswordService", () => {
       const newService = newModule.get<PasswordService>(PasswordService);
 
       // Act
-      // hash()를 호출하명 bcrypt.hash(password, 12)가 내부적으로 실행되어야 함.
+      // hash()를 호출하면 bcrypt.hash(password, 10)가 내부적으로 실행되어야 함.
       const result = await newService.hash(password);
 
       // Assert
       // 반환값이 mock된 "hashedPassword"인지 확인
       expect(result).toBe(hashedPassword);
-      // bcrypt.hash()가 정확히 saltRounds = 12로 호출되었는지 검증
+      // bcrypt.hash()가 정확히 saltRounds = 10로 호출되었는지 검증
       expect(mockHashFunction).toHaveBeenCalledWith(password, 10);
     });
 
