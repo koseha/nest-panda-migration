@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import * as bcrypt from "bcrypt";
 import { AuthService } from "../servise/auth.service";
 import { UserService } from "src/user/service/user.service";
 import { SignUpRequestDto } from "src/user/dto/sign-up.request.dto";
-import { ApiResponse } from "src/common/dto/api-response.dto";
 import { UserResponseDto } from "src/user/dto/user-response.dto";
+import { PasswordService } from "src/security/service/password.service";
+import { TokenService } from "src/security/service/token.service";
 
 /**
  * 각 도메인의 Service를 사용하는 Facade Pattern
@@ -15,6 +15,8 @@ export class AuthFacadeService {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly passwordService: PasswordService,
+    private readonly tokwnService: TokenService,
   ) {}
 
   /**
@@ -22,29 +24,19 @@ export class AuthFacadeService {
    * @param userRequestDto
    * @returns
    */
-  async createUser(
-    userRequestDto: SignUpRequestDto,
-  ): Promise<ApiResponse<UserResponseDto>> {
+  async createUser(userRequestDto: SignUpRequestDto): Promise<UserResponseDto> {
     const dto: SignUpRequestDto = { ...userRequestDto };
 
-    const hashedPassword = await this.getHashedPassword(dto.password);
+    const hashedPassword = await this.passwordService.hash(dto.password);
     const userResponseDto = await this.userService.create(dto, hashedPassword);
 
-    return ApiResponse.success(
-      userResponseDto,
-      "회원가입을 성공적으로 완료하였습니다.",
-    );
-  }
+    userResponseDto.accessToken = this.tokwnService.signAccess({
+      sub: userResponseDto.id,
+    });
+    userResponseDto.refreshToken = this.tokwnService.signRefresh({
+      sub: userResponseDto.id,
+    });
 
-  /**
-   * 비밀번호 해싱에 사용
-   * @param origin
-   * @returns
-   */
-  private async getHashedPassword(origin: string): Promise<string> {
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(origin, saltRounds);
-
-    return hashedPassword;
+    return userResponseDto;
   }
 }

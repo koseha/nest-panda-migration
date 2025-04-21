@@ -5,9 +5,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/user/entity/user.entity";
 import { UserService } from "src/user/service/user.service";
 import { AuthFacadeService } from "./application/auth-facade.service";
+import { SecurityModule } from "src/security/security.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])], // UserService에서 사용하려면 필요함
+  imports: [TypeOrmModule.forFeature([User]), SecurityModule], // UserService에서 사용하려면 필요함
   controllers: [AuthController],
   providers: [AuthService, UserService, AuthFacadeService],
 })

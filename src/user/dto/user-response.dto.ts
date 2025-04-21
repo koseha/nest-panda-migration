@@ -23,6 +23,9 @@ export class UserResponseDto {
    */
   image: string;
 
+  accessToken?: string;
+  refreshToken?: string;
+
   static of(user: User): UserResponseDto {
     const dto = new UserResponseDto();
     dto.id = user.id;
