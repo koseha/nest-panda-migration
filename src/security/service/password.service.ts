@@ -7,7 +7,7 @@ export class PasswordService {
   private readonly saltRounds: number;
 
   constructor(config: ConfigService) {
-    this.saltRounds = +config.get<number>("SALT_ROUNDS", 12);
+    this.saltRounds = +config.get<number>("SALT_ROUNDS", 10);
   }
   /**
    * 비밀번호 해싱에 사용
